@@ -22,7 +22,7 @@ def scrape_prompt(json_schema: dict) -> str:
     )
 
 
-def scrape_to_prompt(model: BaseModel, cmd: Optional[str] = None) -> tuple[dict, str]:
+def scrape_query_to_prompt(model: BaseModel, cmd: Optional[str] = None) -> tuple[dict, str]:
     schema = model.model_json_schema()
     cmd = model.__doc__ if cmd is None else cmd
     cmd = (
