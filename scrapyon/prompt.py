@@ -29,7 +29,7 @@ def scrape_query_to_prompt(model: BaseModel, cmd: Optional[str] = None) -> tuple
         cmd
         if cmd
         else """Instructions not specified. 
-        In that case just scrape the information from the page you see opened, do not do any complex stuff.
+        In that case just scrape the information what you see, do not do any complex stuff.
         """
     )
     return schema, cmd
