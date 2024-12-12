@@ -48,6 +48,7 @@ async def launch(
                 browser = playwright.chromium.connect_over_cdp(cdp_url)
                 page = browser.new_page()
                 page.goto(url)
+                page.wait_for_load_state("load")  # Ensure the page is fully loaded
         except:
             pass
 
@@ -90,6 +91,7 @@ async def scrape(
                 browser = playwright.chromium.connect_over_cdp(cdp_url)
                 page = browser.new_page()
                 page.goto(url)
+                page.wait_for_load_state("load")  # Ensure the page is fully loaded
         except:
             pass
 
