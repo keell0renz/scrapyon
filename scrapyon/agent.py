@@ -4,11 +4,7 @@ from scrapybara.client import Instance
 from anthropic import Anthropic
 
 
-async def run_agent(
-    system_prompt: str,
-    user_prompt: str,
-    instance: Instance
-) -> str:
+async def run_agent(system_prompt: str, user_prompt: str, instance: Instance) -> str:
 
     tools = ToolCollection(
         ComputerTool(instance), BashTool(instance), EditTool(instance)
