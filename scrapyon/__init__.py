@@ -5,7 +5,7 @@ from typing import Optional
 T = TypeVar("T", bound=BaseModel)
 
 
-def launch(cmd: str, url: Optional[str]) -> str:  # type: ignore temporary
+def launch(cmd: str, url: Optional[str] = None) -> str:  # type: ignore temporary
     """Launch a computer use agent with Scrapybara as a back-end.
 
     When url is specified, programmatically starts the browser with the given URL first,
@@ -23,7 +23,8 @@ def launch(cmd: str, url: Optional[str]) -> str:  # type: ignore temporary
 
 def scrape(
     query: T,
-    url: Optional[str],
+    url: Optional[str] = None,
+    cmd: Optional[str] = None,
 ) -> T:  # type: ignore temporary
     """Use an agent as an intelligent information retriever.
 
@@ -33,6 +34,7 @@ def scrape(
     Args:
         query: A Pydantic model class defining the query structure and response fields
         url: Optional URL to open in browser before launching the agent
+        cmd: Optional command which overrides the query model docstring
 
     Returns:
         T: Instance of the provided Pydantic model containing the retrieved information
