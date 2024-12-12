@@ -38,15 +38,14 @@ async def launch(
     """
 
     instance = scrapybara.start(instance_type=instance_type)
-
-    if url:
-        cdp_url = instance.browser.start().cdp_url
-        async with async_playwright() as playwright:
-            browser = await playwright.chromium.connect_over_cdp(cdp_url)
-            page = await browser.new_page()
-            await page.goto(url)
-
     try:
+        if url:
+            cdp_url = instance.browser.start().cdp_url
+            async with async_playwright() as playwright:
+                browser = await playwright.chromium.connect_over_cdp(cdp_url)
+                page = await browser.new_page()
+                await page.goto(url)
+
         result = await run_agent(launch_prompt(), cmd, instance)
     finally:
         instance.stop()
@@ -75,16 +74,15 @@ async def scrape(
         T: Instance of the provided Pydantic model containing the retrieved information
     """
     instance = scrapybara.start(instance_type=instance_type)
-
-    if url:
-        cdp_url = instance.browser.start().cdp_url
-        async with async_playwright() as playwright:
-            browser = await playwright.chromium.connect_over_cdp(cdp_url)
-            page = await browser.new_page()
-            await page.goto(url)
-
-    schema, cmd = scrape_query_to_prompt(query, cmd)
     try:
+        if url:
+            cdp_url = instance.browser.start().cdp_url
+            async with async_playwright() as playwright:
+                browser = await playwright.chromium.connect_over_cdp(cdp_url)
+                page = await browser.new_page()
+                await page.goto(url)
+
+        schema, cmd = scrape_query_to_prompt(query, cmd)
         result = await run_agent(scrape_prompt(schema), cmd, instance)
     finally:
         instance.stop()
