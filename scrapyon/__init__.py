@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from playwright.sync_api import sync_playwright
 
-import asyncio
+import json
 import os
 
 SCRAPYBARA_API_KEY = os.getenv("SCRAPYBARA_API_KEY")
@@ -102,7 +102,7 @@ async def scrape(
         instance.stop()
 
     try:
-        return query.model_validate(result)
+        return query.model_validate(json.loads(result))
     except ValidationError as e:
         # TODO potentially handle re-request
         raise e
