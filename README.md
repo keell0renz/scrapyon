@@ -1,6 +1,6 @@
 # ScrapyOn: Claude computer use with Scrapybara
 
-Important: Not yet tested! It is a prototype and concept. You better run it in jupyter notebook for now.
+Important: Not yet tested! It is a prototype and concept. You better run it in jupyter notebook for now. Also scrape part does not really work now due to some dumb issues with validation. Serves as proof of concept.
 
 ScrapyOn is a convenient wrapper which makes easy to run computer use agents with Scrapybara as a back-end.
 
