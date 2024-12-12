@@ -9,7 +9,8 @@ import scrapyon
 
 result = scrapyon.launch(
     cmd="Please find who is Deitz Nuutsen",
-    url="https://google.com"
+    url="https://google.com",
+    instance_type="small"
 )
 ```
 
@@ -29,7 +30,9 @@ class Query(BaseModel):
 
 result: Query = scrapyon.scrape(
     query=Query,
-    url="https://google.com"
+    url="https://google.com",
+    cmd="Command here overwrites Query docstring command.",
+    instance_type="small"
 )
 
 print(result.response)
