@@ -9,10 +9,13 @@ from pydantic import BaseModel
 from playwright.sync_api import sync_playwright
 
 import asyncio
+import os
+
+SCRAPYBARA_API_KEY = os.getenv("SCRAPYBARA_API_KEY")
 
 T = TypeVar("T", bound=BaseModel)
 
-scrapybara = Scrapybara()
+scrapybara = Scrapybara(api_key=SCRAPYBARA_API_KEY)
 
 
 def launch(

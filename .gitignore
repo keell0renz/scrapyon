@@ -60,3 +60,5 @@ logs/
 uv.lock
 
 experiments/
+
+*.ipynb
