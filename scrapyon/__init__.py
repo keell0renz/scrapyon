@@ -6,6 +6,8 @@ from typing import TypeVar, Optional, Literal
 from pydantic_core import ValidationError
 from pydantic import BaseModel
 
+from playwright.sync_api import sync_playwright
+
 import asyncio
 
 T = TypeVar("T", bound=BaseModel)
@@ -32,6 +34,14 @@ def launch(
     """
 
     instance = scrapybara.start(instance_type=instance_type)
+
+    if url:
+        cdp_url = instance.browser.start().cdp_url
+        playwright = sync_playwright().start()
+        browser = playwright.chromium.connect_over_cdp(cdp_url)
+        page = browser.new_page()
+        page.goto(url)
+
     try:
         result = asyncio.run(run_agent(launch_prompt(), cmd, instance))
     finally:
@@ -60,6 +70,13 @@ def scrape(
         T: Instance of the provided Pydantic model containing the retrieved information
     """
     instance = scrapybara.start(instance_type=instance_type)
+
+    if url:
+        cdp_url = instance.browser.start().cdp_url
+        playwright = sync_playwright().start()
+        browser = playwright.chromium.connect_over_cdp(cdp_url)
+        page = browser.new_page()
+        page.goto(url)
 
     schema, cmd = scrape_query_to_prompt(query, cmd)
     try:
