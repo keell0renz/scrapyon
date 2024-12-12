@@ -6,7 +6,7 @@ from typing import TypeVar, Optional, Literal
 from pydantic_core import ValidationError
 from pydantic import BaseModel
 
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
 import asyncio
 import os
@@ -18,7 +18,7 @@ T = TypeVar("T", bound=BaseModel)
 scrapybara = Scrapybara(api_key=SCRAPYBARA_API_KEY)
 
 
-def launch(
+async def launch(
     cmd: str,
     url: Optional[str] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
@@ -41,20 +41,20 @@ def launch(
 
     if url:
         cdp_url = instance.browser.start().cdp_url
-        playwright = sync_playwright().start()
-        browser = playwright.chromium.connect_over_cdp(cdp_url)
-        page = browser.new_page()
-        page.goto(url)
+        async with async_playwright() as playwright:
+            browser = await playwright.chromium.connect_over_cdp(cdp_url)
+            page = await browser.new_page()
+            await page.goto(url)
 
     try:
-        result = asyncio.run(run_agent(launch_prompt(), cmd, instance))
+        result = await run_agent(launch_prompt(), cmd, instance)
     finally:
         instance.stop()
 
     return result
 
 
-def scrape(
+async def scrape(
     query: T,
     url: Optional[str] = None,
     cmd: Optional[str] = None,
@@ -78,14 +78,14 @@ def scrape(
 
     if url:
         cdp_url = instance.browser.start().cdp_url
-        playwright = sync_playwright().start()
-        browser = playwright.chromium.connect_over_cdp(cdp_url)
-        page = browser.new_page()
-        page.goto(url)
+        async with async_playwright() as playwright:
+            browser = await playwright.chromium.connect_over_cdp(cdp_url)
+            page = await browser.new_page()
+            await page.goto(url)
 
     schema, cmd = scrape_query_to_prompt(query, cmd)
     try:
-        result = asyncio.run(run_agent(scrape_prompt(schema), cmd, instance))
+        result = await run_agent(scrape_prompt(schema), cmd, instance)
     finally:
         instance.stop()
 
