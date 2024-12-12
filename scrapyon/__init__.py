@@ -7,9 +7,8 @@ from pydantic_core import ValidationError
 from pydantic import BaseModel
 
 from playwright.sync_api import sync_playwright
-
-import json
 import os
+from ast import literal_eval
 
 SCRAPYBARA_API_KEY = os.getenv("SCRAPYBARA_API_KEY")
 
@@ -101,8 +100,13 @@ async def scrape(
     finally:
         instance.stop()
 
+    print("raw", result)
+
     try:
-        return query.model_validate(json.loads(result))
+        return query.model_validate(literal_eval(result))
     except ValidationError as e:
         # TODO potentially handle re-request
         raise e
+    except (ValueError, SyntaxError) as e:
+        # Handle potential ast.literal_eval errors
+        raise ValueError(f"Failed to parse result: {str(e)}") from e
