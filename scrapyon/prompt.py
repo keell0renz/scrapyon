@@ -3,8 +3,10 @@ from typing import Optional
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 from pydantic import BaseModel
+from pathlib import Path
 
-env = Environment(loader=FileSystemLoader("templates"))
+TEMPLATE_DIR = Path(__file__).parent / "prompts"
+env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
 
 def launch_prompt() -> str:
