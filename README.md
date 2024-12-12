@@ -10,7 +10,8 @@ import scrapyon
 result = scrapyon.launch(
     cmd="Please find who is Deitz Nuutsen",
     url="https://google.com",
-    instance_type="small"
+    instance_type="small",
+    verbose=True  # Set to True to see detailed progress
 )
 ```
 
@@ -32,9 +33,18 @@ result: Query = scrapyon.scrape(
     query=Query,
     url="https://google.com",
     cmd="Command here overwrites Query docstring command.",
-    instance_type="small"
+    instance_type="small",
+    verbose=True  # Set to True to see detailed progress
 )
 
 print(result.response)
 print(result.how_true)
 ```
+
+## Parameters
+
+Both `launch()` and `scrape()` functions accept these common parameters:
+
+- `url`: Optional URL to open in browser before launching the agent
+- `instance_type`: Size of the instance ("small", "medium", or "large"). Defaults to "small"
+- `verbose`: If True, prints detailed progress information including assistant responses and tool usage. Defaults to False

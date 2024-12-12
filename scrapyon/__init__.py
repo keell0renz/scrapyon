@@ -22,6 +22,7 @@ async def launch(
     cmd: str,
     url: Optional[str] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
+    verbose: bool = False,
 ) -> str:  # type: ignore temporary
     """Launch a computer use agent with Scrapybara as a back-end.
 
@@ -32,6 +33,7 @@ async def launch(
         cmd: The command/instruction for the agent to execute
         url: Optional URL to open in browser before launching the agent
         instance_type: By default "small", but also can be "medium" or "large"
+        verbose: If True, prints detailed progress information
 
     Returns:
         str: Result from the agent execution
@@ -50,7 +52,7 @@ async def launch(
             pass
 
     try:
-        result = await run_agent(launch_prompt(), cmd, instance)
+        result = await run_agent(launch_prompt(), cmd, instance, verbose=verbose)
     finally:
         instance.stop()
 
@@ -62,6 +64,7 @@ async def scrape(
     url: Optional[str] = None,
     cmd: Optional[str] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
+    verbose: bool = False,
 ) -> T:  # type: ignore temporary
     """Use an agent as an intelligent information retriever.
 
@@ -73,6 +76,7 @@ async def scrape(
         url: Optional URL to open in browser before launching the agent
         cmd: Optional command which overrides the query model docstring
         instance_type: By default "small", but also can be "medium" or "large"
+        verbose: If True, prints detailed progress information
 
     Returns:
         T: Instance of the provided Pydantic model containing the retrieved information
@@ -91,7 +95,7 @@ async def scrape(
 
     schema, cmd = scrape_query_to_prompt(query, cmd)
     try:
-        result = await run_agent(scrape_prompt(schema), cmd, instance)
+        result = await run_agent(scrape_prompt(schema), cmd, instance, verbose=verbose)
     finally:
         instance.stop()
 

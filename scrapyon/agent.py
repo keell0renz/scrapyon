@@ -4,7 +4,12 @@ from scrapybara.client import Instance
 from anthropic import Anthropic
 
 
-async def run_agent(system_prompt: str, user_prompt: str, instance: Instance) -> str:
+async def run_agent(
+    system_prompt: str, 
+    user_prompt: str, 
+    instance: Instance,
+    verbose: bool = False
+) -> str:
 
     tools = ToolCollection(
         ComputerTool(instance), BashTool(instance), EditTool(instance)
@@ -32,12 +37,18 @@ async def run_agent(system_prompt: str, user_prompt: str, instance: Instance) ->
         tool_results = []
         for content in response.content:
             if content.type == "text":
-                pass
+                if verbose:
+                    print(f"Assistant: {content.text}")
             elif content.type == "tool_use":
-                pass
+                if verbose:
+                    print(f"Running tool: {content.name}")
+                    print(f"Tool input: {content.input}")
+                
                 result = await tools.run(name=content.name, tool_input=content.input)  # type: ignore
 
                 if result:
+                    if verbose and result.output:
+                        print(f"Tool output: {result.output}")
                     tool_result = make_tool_result(result, content.id)
                     tool_results.append(tool_result)
 
