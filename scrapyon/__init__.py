@@ -1,11 +1,23 @@
-from typing import TypeVar
+from scrapyon.prompt import launch_prompt, scrape_prompt, scrape_query_to_prompt
+from scrapyon.agent import run_agent
+from scrapybara import Scrapybara
+
+from typing import TypeVar, Optional, Literal
+from pydantic_core import ValidationError
 from pydantic import BaseModel
-from typing import Optional
+
+import asyncio
 
 T = TypeVar("T", bound=BaseModel)
 
+scrapybara = Scrapybara()
 
-def launch(cmd: str, url: Optional[str] = None) -> str:  # type: ignore temporary
+
+def launch(
+    cmd: str,
+    url: Optional[str] = None,
+    instance_type: Optional[Literal["small", "medium", "large"]] = "small",
+) -> str:  # type: ignore temporary
     """Launch a computer use agent with Scrapybara as a back-end.
 
     When url is specified, programmatically starts the browser with the given URL first,
@@ -18,13 +30,21 @@ def launch(cmd: str, url: Optional[str] = None) -> str:  # type: ignore temporar
     Returns:
         str: Result from the agent execution
     """
-    pass
+
+    instance = scrapybara.start(instance_type=instance_type)
+    try:
+        result = asyncio.run(run_agent(launch_prompt(), cmd, instance))
+    finally:
+        instance.stop()
+
+    return result
 
 
 def scrape(
     query: T,
     url: Optional[str] = None,
     cmd: Optional[str] = None,
+    instance_type: Optional[Literal["small", "medium", "large"]] = "small",
 ) -> T:  # type: ignore temporary
     """Use an agent as an intelligent information retriever.
 
@@ -39,4 +59,16 @@ def scrape(
     Returns:
         T: Instance of the provided Pydantic model containing the retrieved information
     """
-    pass
+    instance = scrapybara.start(instance_type=instance_type)
+
+    schema, cmd = scrape_query_to_prompt(query, cmd)
+    try:
+        result = asyncio.run(run_agent(scrape_prompt(schema), cmd, instance))
+    finally:
+        instance.stop()
+
+    try:
+        return query.model_validate(result)
+    except ValidationError as e:
+        # TODO potentially handle re-request
+        raise e

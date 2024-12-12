@@ -7,8 +7,7 @@ from anthropic import Anthropic
 async def run_agent(
     system_prompt: str,
     user_prompt: str,
-    instance: Instance,
-    tools: ToolCollection,
+    instance: Instance
 ) -> str:
 
     tools = ToolCollection(
