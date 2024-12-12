@@ -1,5 +1,7 @@
 # ScrapyOn: Claude computer use with Scrapybara
 
+Important: NOT READY YET
+
 ScrapyOn is a convenient wrapper which makes easy to run computer use agents with Scrapybara as a back-end.
 
 ```python
