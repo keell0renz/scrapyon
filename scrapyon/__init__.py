@@ -28,6 +28,7 @@ def launch(
     Args:
         cmd: The command/instruction for the agent to execute
         url: Optional URL to open in browser before launching the agent
+        instance_type: By default "small", but also can be "medium" or "large"
 
     Returns:
         str: Result from the agent execution
@@ -65,6 +66,7 @@ def scrape(
         query: A Pydantic model class defining the query structure and response fields
         url: Optional URL to open in browser before launching the agent
         cmd: Optional command which overrides the query model docstring
+        instance_type: By default "small", but also can be "medium" or "large"
 
     Returns:
         T: Instance of the provided Pydantic model containing the retrieved information
