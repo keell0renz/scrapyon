@@ -6,7 +6,7 @@ from typing import TypeVar, Optional, Literal
 from pydantic_core import ValidationError
 from pydantic import BaseModel
 
-from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
 
 import asyncio
 import os
@@ -38,14 +38,18 @@ async def launch(
     """
 
     instance = scrapybara.start(instance_type=instance_type)
-    try:
-        if url:
-            cdp_url = instance.browser.start().cdp_url
-            async with async_playwright() as playwright:
-                browser = await playwright.chromium.connect_over_cdp(cdp_url)
-                page = await browser.new_page()
-                await page.goto(url)
 
+    if url:
+        try:
+            cdp_url = instance.browser.start().cdp_url
+            with sync_playwright() as playwright:
+                browser = playwright.chromium.connect_over_cdp(cdp_url)
+                page = browser.new_page()
+                page.goto(url)
+        except:
+            pass
+
+    try:
         result = await run_agent(launch_prompt(), cmd, instance)
     finally:
         instance.stop()
@@ -74,15 +78,19 @@ async def scrape(
         T: Instance of the provided Pydantic model containing the retrieved information
     """
     instance = scrapybara.start(instance_type=instance_type)
-    try:
-        if url:
-            cdp_url = instance.browser.start().cdp_url
-            async with async_playwright() as playwright:
-                browser = await playwright.chromium.connect_over_cdp(cdp_url)
-                page = await browser.new_page()
-                await page.goto(url)
 
-        schema, cmd = scrape_query_to_prompt(query, cmd)
+    if url:
+        try:
+            cdp_url = instance.browser.start().cdp_url
+            with sync_playwright() as playwright:
+                browser = playwright.chromium.connect_over_cdp(cdp_url)
+                page = browser.new_page()
+                page.goto(url)
+        except:
+            pass
+
+    schema, cmd = scrape_query_to_prompt(query, cmd)
+    try:
         result = await run_agent(scrape_prompt(schema), cmd, instance)
     finally:
         instance.stop()
