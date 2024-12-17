@@ -14,7 +14,6 @@ async def open_url_async(instance: Instance, url: str):
         await page.wait_for_load_state("load")
 
 def open_url(instance: Instance, url: str):
-    # For sync contexts
     cdp_url = instance.browser.start().cdp_url
     with sync_playwright() as playwright:
         browser = playwright.chromium.connect_over_cdp(cdp_url)
@@ -28,10 +27,10 @@ def open_url_auto(instance: Instance, url: str):
         # Check if we're in an async context
         loop = asyncio.get_running_loop()
         # We're in an async context, use the async version
-        return open_url_async(instance, url)
+        loop.create_task(open_url_async(instance, url))
     except RuntimeError:
         # We're not in an async context, use the sync version
-        return open_url(instance, url)
+        open_url(instance, url)
 
 
 def make_tool_result(result: ToolResult, tool_use_id: str) -> BetaToolResultBlockParam:
