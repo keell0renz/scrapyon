@@ -1,26 +1,25 @@
-from scrapyon.prompt import launch_prompt, scrape_prompt, scrape_query_to_prompt
-from scrapyon.agent import run_agent
+from scrapyon._prompt import launch_prompt, scrape_prompt, scrape_query_to_prompt
+from scrapyon._agent import run_agent
 from scrapybara import Scrapybara
+from scrapyon.tools import ToolCollection
+from scrapybara.anthropic import BashTool, ComputerTool, EditTool
 
 from typing import TypeVar, Optional, Literal
 from pydantic_core import ValidationError
 from pydantic import BaseModel
 
-from playwright.sync_api import sync_playwright
-
+from scrapyon._helpers import open_url
 import json
-import os
-
-SCRAPYBARA_API_KEY = os.getenv("SCRAPYBARA_API_KEY")
 
 T = TypeVar("T", bound=BaseModel)
 
-scrapybara = Scrapybara(api_key=SCRAPYBARA_API_KEY)
+scrapybara = Scrapybara()
 
 
-async def launch(
+def launch(
     cmd: str,
     url: Optional[str] = None,
+    tools: Optional[ToolCollection] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
 ) -> str:  # type: ignore temporary
@@ -42,28 +41,25 @@ async def launch(
     instance = scrapybara.start(instance_type=instance_type)
 
     if url:
-        try:
-            cdp_url = instance.browser.start().cdp_url
-            with sync_playwright() as playwright:
-                browser = playwright.chromium.connect_over_cdp(cdp_url)
-                page = browser.new_page()
-                page.goto(url)
-                page.wait_for_load_state("load")  # Ensure the page is fully loaded
-        except:
-            pass
+        open_url(instance, url)
 
     try:
-        result = await run_agent(launch_prompt(), cmd, instance, verbose=verbose)
+        if tools is None:
+            tools = ToolCollection(
+                ComputerTool(instance), BashTool(instance), EditTool(instance)
+            )
+        result = run_agent(launch_prompt(), cmd, instance, tools, verbose=verbose)
     finally:
         instance.stop()
 
     return result
 
 
-async def scrape(
+def scrape(
     query: T,
     url: Optional[str] = None,
     cmd: Optional[str] = None,
+    tools: Optional[ToolCollection] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
 ) -> T:  # type: ignore temporary
@@ -85,19 +81,15 @@ async def scrape(
     instance = scrapybara.start(instance_type=instance_type)
 
     if url:
-        try:
-            cdp_url = instance.browser.start().cdp_url
-            with sync_playwright() as playwright:
-                browser = playwright.chromium.connect_over_cdp(cdp_url)
-                page = browser.new_page()
-                page.goto(url)
-                page.wait_for_load_state("load")  # Ensure the page is fully loaded
-        except:
-            pass
+        open_url(instance, url)
 
     schema, cmd = scrape_query_to_prompt(query, cmd)
     try:
-        result = await run_agent(scrape_prompt(schema), cmd, instance, verbose=verbose)
+        if tools is None:
+            tools = ToolCollection(
+                ComputerTool(instance), BashTool(instance), EditTool(instance)
+            )
+        result = run_agent(scrape_prompt(schema), cmd, instance, tools, verbose=verbose)
     finally:
         instance.stop()
 

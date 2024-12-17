@@ -1,19 +1,12 @@
 from scrapybara.anthropic import BashTool, ComputerTool, EditTool
-from scrapyon.helpers import ToolCollection, make_tool_result
+from scrapyon._helpers import make_tool_result
+from scrapyon.tools import ToolCollection
 from scrapybara.client import Instance
 from anthropic import Anthropic
 
-
-async def run_agent(
-    system_prompt: str, 
-    user_prompt: str, 
-    instance: Instance,
-    verbose: bool = False
+def run_agent(
+    system_prompt: str, user_prompt: str, instance: Instance, tools: ToolCollection, verbose: bool = False
 ) -> str:
-
-    tools = ToolCollection(
-        ComputerTool(instance), BashTool(instance), EditTool(instance)
-    )
 
     anthropic = Anthropic()
 
@@ -43,8 +36,8 @@ async def run_agent(
                 if verbose:
                     print(f"Running tool: {content.name}")
                     print(f"Tool input: {content.input}")
-                
-                result = await tools.run(name=content.name, tool_input=content.input)  # type: ignore
+
+                result = tools.run(name=content.name, tool_input=content.input)  # type: ignore
 
                 if result:
                     if verbose and result.output:

@@ -1,25 +1,16 @@
 from anthropic.types.beta import BetaToolResultBlockParam
 from scrapybara.anthropic.base import ToolResult
-from typing import Optional
+from scrapybara.client import Instance
+from playwright.sync_api import sync_playwright
 
 
-class ToolCollection:
-    def __init__(self, *tools):
-        self.tools = tools
-        self.tool_map = {tool.to_params()["name"]: tool for tool in tools}
-
-    def to_params(self) -> list:
-        return [tool.to_params() for tool in self.tools]
-
-    async def run(self, *, name: str, tool_input: dict) -> Optional[ToolResult]:
-        tool = self.tool_map.get(name)
-        if not tool:
-            return None
-        try:
-            return await tool(**tool_input)
-        except Exception as e:
-            print(f"Error running tool {name}: {e}")
-            return None
+def open_url(instance: Instance, url: str):
+    cdp_url = instance.browser.start().cdp_url
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.connect_over_cdp(cdp_url)
+        page = browser.new_page()
+        page.goto(url)
+        page.wait_for_load_state("load")  # Ensure the page is fully loaded
 
 
 def make_tool_result(result: ToolResult, tool_use_id: str) -> BetaToolResultBlockParam:
