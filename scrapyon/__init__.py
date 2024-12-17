@@ -8,7 +8,7 @@ from typing import TypeVar, Optional, Literal
 from pydantic_core import ValidationError
 from pydantic import BaseModel
 
-from scrapyon._helpers import open_url
+from scrapyon._helpers import open_url_auto
 import json
 
 T = TypeVar("T", bound=BaseModel)
@@ -40,10 +40,10 @@ def launch(
 
     instance = scrapybara.start(instance_type=instance_type)
 
-    if url:
-        open_url(instance, url)
-
     try:
+        if url:
+            open_url_auto(instance, url)
+
         if tools is None:
             tools = ToolCollection(
                 ComputerTool(instance), BashTool(instance), EditTool(instance)
@@ -80,11 +80,12 @@ def scrape(
     """
     instance = scrapybara.start(instance_type=instance_type)
 
-    if url:
-        open_url(instance, url)
-
-    schema, cmd = scrape_query_to_prompt(query, cmd)
     try:
+        if url:
+            open_url_auto(instance, url)
+
+        schema, cmd = scrape_query_to_prompt(query, cmd)
+
         if tools is None:
             tools = ToolCollection(
                 ComputerTool(instance), BashTool(instance), EditTool(instance)
