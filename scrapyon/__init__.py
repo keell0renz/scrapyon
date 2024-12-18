@@ -98,7 +98,6 @@ def scrape(
         instance.stop()
 
     try:
-        print(messages[-1]["content"][-1]["text"])
         return query.model_validate(extract_json(messages[-1]["content"][-1]["text"]))
     except ValidationError as e:
         # TODO potentially handle re-request
