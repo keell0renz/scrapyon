@@ -11,7 +11,7 @@ def extract_json(text: str) -> dict:
     # Find text that looks like a JSON object (between curly braces)
     json_match = re.search(r"{.*}", text, re.DOTALL)
     if not json_match:
-        raise ValueError("No JSON object found in text")
+        raise ValueError(f"No JSON object found in text: {text}")
 
     try:
         # Parse the matched text as JSON
