@@ -21,7 +21,7 @@ def launch(
     tools: Optional[ToolCollection] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
-) -> str:  # type: ignore temporary
+) -> list[dict]:  # type: ignore temporary
     """Launch an agent to execute a command using Scrapybara as the back-end.
 
     If a URL is provided, the browser is opened with the specified URL before
@@ -35,7 +35,7 @@ def launch(
         verbose: If True, enables detailed logging of the agent's progress.
 
     Returns:
-        str: The result of the agent's execution.
+        list[dict]: The result of the agent's execution.
     """
 
     instance = scrapybara.start(instance_type=instance_type)
@@ -91,12 +91,20 @@ def scrape(
             tools = ToolCollection(
                 ComputerTool(instance), BashTool(instance), EditTool(instance)
             )
-        result = run_agent(scrape_prompt(schema), cmd, instance, tools, verbose=verbose)
+        messages = run_agent(
+            scrape_prompt(schema), cmd, instance, tools, verbose=verbose
+        )
     finally:
         instance.stop()
 
     try:
-        return query.model_validate(json.loads(result))
+        text = ""
+        last_message = messages[-1]
+        if last_message["role"] == "assistant":
+            for content in last_message["content"]:
+                if content["type"] == "text":
+                    text = content["text"]
+        return query.model_validate(json.loads(text))
     except ValidationError as e:
         # TODO potentially handle re-request
         raise e

@@ -5,7 +5,7 @@ from anthropic import Anthropic
 
 def run_agent(
     system_prompt: str, user_prompt: str, instance: Instance, tools: ToolCollection, verbose: bool = False
-) -> str:
+) -> list[dict]:
 
     anthropic = Anthropic()
 
@@ -54,11 +54,4 @@ def run_agent(
         else:
             break
 
-    text = ""
-    last_message = messages[-1]
-    if last_message["role"] == "assistant":
-        for content in last_message["content"]:
-            if content["type"] == "text":
-                text = content["text"]
-
-    return text
+    return messages
