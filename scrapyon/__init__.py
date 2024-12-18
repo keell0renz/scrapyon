@@ -98,13 +98,7 @@ def scrape(
         instance.stop()
 
     try:
-        text = ""
-        last_message = messages[-1]
-        if last_message["role"] == "assistant":
-            for content in last_message["content"]:
-                if content["type"] == "text":
-                    text = content["text"]
-        return query.model_validate(json.loads(text))
+        return query.model_validate(json.loads(messages[-1]["content"][-1]["text"]))
     except ValidationError as e:
         # TODO potentially handle re-request
         raise e
