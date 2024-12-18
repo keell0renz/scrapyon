@@ -1,6 +1,6 @@
 from scrapyon._prompt import launch_prompt, scrape_prompt, scrape_query_to_prompt
 from scrapyon.tools import ToolCollection, ComputerTool, BashTool, EditTool
-from scrapyon._helpers import open_url_auto
+from scrapyon._helpers import open_url
 from scrapyon._agent import run_agent
 from scrapybara import Scrapybara
 
@@ -41,7 +41,7 @@ def launch(
 
     try:
         if url:
-            open_url_auto(instance, url)
+            open_url(instance, url)
 
         if tools is None:
             tools = ToolCollection(
@@ -81,7 +81,7 @@ def scrape(
 
     try:
         if url:
-            open_url_auto(instance, url)
+            open_url(instance, url)
 
         schema, cmd = scrape_query_to_prompt(query, cmd)
 
