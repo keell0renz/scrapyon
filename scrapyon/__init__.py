@@ -1,14 +1,13 @@
 from scrapyon._prompt import launch_prompt, scrape_prompt, scrape_query_to_prompt
+from scrapyon.tools import ToolCollection, ComputerTool, BashTool, EditTool
+from scrapyon._helpers import open_url_auto
 from scrapyon._agent import run_agent
 from scrapybara import Scrapybara
-from scrapyon.tools import ToolCollection
-from scrapybara.anthropic import BashTool, ComputerTool, EditTool
 
 from typing import TypeVar, Optional, Literal
 from pydantic_core import ValidationError
 from pydantic import BaseModel
 
-from scrapyon._helpers import open_url_auto
 import json
 
 T = TypeVar("T", bound=BaseModel)
