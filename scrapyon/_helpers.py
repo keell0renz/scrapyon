@@ -11,7 +11,7 @@ def open_url(instance: Instance, url: str):
             page = browser.new_page()
             page.goto(url)
             page.wait_for_load_state("load")
-    except:
+    except RuntimeError:
         pass
 
 def make_tool_result(result: ToolResult, tool_use_id: str) -> BetaToolResultBlockParam:
