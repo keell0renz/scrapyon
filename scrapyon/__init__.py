@@ -22,19 +22,20 @@ def launch(
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
 ) -> str:  # type: ignore temporary
-    """Launch a computer use agent with Scrapybara as a back-end.
+    """Launch an agent to execute a command using Scrapybara as the back-end.
 
-    When url is specified, programmatically starts the browser with the given URL first,
-    so the agent spends less time opening browser and typing manually.
+    If a URL is provided, the browser is opened with the specified URL before
+    executing the command, reducing the time spent on manual browser operations.
 
     Args:
-        cmd: The command/instruction for the agent to execute
-        url: Optional URL to open in browser before launching the agent
-        instance_type: By default "small", but also can be "medium" or "large"
-        verbose: If True, prints detailed progress information
+        cmd: The command or instruction for the agent to execute.
+        url: An optional URL to open in the browser before launching the agent.
+        tools: An optional collection of tools for the agent to use. Defaults to a set of basic tools.
+        instance_type: The type of instance to start, can be "small", "medium", or "large". Defaults to "small".
+        verbose: If True, enables detailed logging of the agent's progress.
 
     Returns:
-        str: Result from the agent execution
+        str: The result of the agent's execution.
     """
 
     instance = scrapybara.start(instance_type=instance_type)
@@ -62,20 +63,21 @@ def scrape(
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
 ) -> T:  # type: ignore temporary
-    """Use an agent as an intelligent information retriever.
+    """Retrieve information using an agent with a defined query structure.
 
-    Allows retrieving information that requires agentic behavior by defining
-    the query and response structure using a Pydantic model.
+    This function uses a Pydantic model to define the query and response structure,
+    allowing the agent to perform complex information retrieval tasks.
 
     Args:
-        query: A Pydantic model class defining the query structure and response fields
-        url: Optional URL to open in browser before launching the agent
-        cmd: Optional command which overrides the query model docstring
-        instance_type: By default "small", but also can be "medium" or "large"
-        verbose: If True, prints detailed progress information
+        query: A Pydantic model instance defining the query structure and expected response fields.
+        url: An optional URL to open in the browser before launching the agent.
+        cmd: An optional command that overrides the query model's docstring.
+        tools: An optional collection of tools for the agent to use. Defaults to a set of basic tools.
+        instance_type: The type of instance to start, can be "small", "medium", or "large". Defaults to "small".
+        verbose: If True, enables detailed logging of the agent's progress.
 
     Returns:
-        T: Instance of the provided Pydantic model containing the retrieved information
+        T: An instance of the provided Pydantic model containing the retrieved information.
     """
     instance = scrapybara.start(instance_type=instance_type)
 
