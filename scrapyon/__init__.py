@@ -1,6 +1,6 @@
 from scrapyon._prompt import launch_prompt, scrape_prompt, scrape_query_to_prompt
 from scrapyon.tools import ToolCollection, ComputerTool, BashTool, EditTool
-from scrapyon._helpers import open_url
+from scrapyon._helpers import open_url, extract_json
 from scrapyon._agent import run_agent
 from scrapybara import Scrapybara
 
@@ -98,7 +98,8 @@ def scrape(
         instance.stop()
 
     try:
-        return query.model_validate(json.loads(messages[-1]["content"][-1]["text"]))
+        print(messages[-1]["content"][-1]["text"])
+        return query.model_validate(extract_json(messages[-1]["content"][-1]["text"]))
     except ValidationError as e:
         # TODO potentially handle re-request
         raise e
