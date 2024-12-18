@@ -11,6 +11,7 @@ from scrapybara.anthropic.base import (
     ToolError,
     ToolResult,
 )
+from scrapyon._logging import logger
 
 
 class ComputerToolOptions(TypedDict):
@@ -34,7 +35,7 @@ class ToolCollection:
         try:
             return tool(**tool_input)
         except Exception as e:
-            print(f"Error running tool {name}: {e}")
+            logger.error(f"Error running tool {name}: {e}")
             return None
 
 

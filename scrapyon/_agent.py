@@ -2,11 +2,13 @@ from scrapyon._helpers import make_tool_result
 from scrapyon.tools import ToolCollection
 from scrapybara.client import Instance
 from anthropic import Anthropic
+from scrapyon._logging import logger, setup_logging
 
 def run_agent(
     system_prompt: str, user_prompt: str, instance: Instance, tools: ToolCollection, verbose: bool = False
 ) -> list[dict]:
 
+    setup_logging(verbose)
     anthropic = Anthropic()
 
     messages = []
@@ -29,18 +31,15 @@ def run_agent(
         tool_results = []
         for content in response.content:
             if content.type == "text":
-                if verbose:
-                    print(f"Assistant: {content.text}")
+                logger.info(f"Assistant: {content.text}")
             elif content.type == "tool_use":
-                if verbose:
-                    print(f"Running tool: {content.name}")
-                    print(f"Tool input: {content.input}")
-
+                logger.info(f"Running tool: {content.name}")
+                logger.info(f"Tool input: {content.input}")
                 result = tools.run(name=content.name, tool_input=content.input)  # type: ignore
 
                 if result:
-                    if verbose and result.output:
-                        print(f"Tool output: {result.output}")
+                    if result.output:
+                        logger.info(f"Tool output: {result.output}")
                     tool_result = make_tool_result(result, content.id)
                     tool_results.append(tool_result)
 

@@ -3,16 +3,18 @@ from scrapyon.tools import ToolCollection, ComputerTool, BashTool, EditTool
 from scrapyon._helpers import open_url, extract_json
 from scrapyon._agent import run_agent
 from scrapybara import Scrapybara
+from scrapyon._logging import logger, setup_logging
 
 from typing import TypeVar, Optional, Literal
 from pydantic_core import ValidationError
 from pydantic import BaseModel
 
-import json
+import logging
 
 T = TypeVar("T", bound=BaseModel)
 
 scrapybara = Scrapybara()
+logger = logging.getLogger(__name__)
 
 
 def launch(
@@ -38,11 +40,16 @@ def launch(
         list[dict]: The result of the agent's execution.
     """
 
+    setup_logging(verbose)
     instance = scrapybara.start(instance_type=instance_type)
+    logger.info(f"Started Scrapybara instance: {instance_type}")
+    stream_url = instance.get_stream_url().stream_url
+    logger.info(f"VNC stream URL: {stream_url}")
 
     try:
         if url:
             open_url(instance, url)
+            logger.info(f"Opened URL in browser: {url}")
 
         if tools is None:
             tools = ToolCollection(
@@ -51,7 +58,7 @@ def launch(
         result = run_agent(launch_prompt(), cmd, instance, tools, verbose=verbose)
     finally:
         instance.stop()
-
+        logger.info("Stopped Scrapybara instance")
     return result
 
 
@@ -79,11 +86,16 @@ def scrape(
     Returns:
         T: An instance of the provided Pydantic model containing the retrieved information.
     """
+    setup_logging(verbose)
     instance = scrapybara.start(instance_type=instance_type)
+    logger.info(f"Started Scrapybara instance: {instance_type}")
+    stream_url = instance.get_stream_url().stream_url
+    logger.info(f"VNC stream URL: {stream_url}")
 
     try:
         if url:
             open_url(instance, url)
+            logger.info(f"Opened URL in browser: {url}")
 
         schema, cmd = scrape_query_to_prompt(query, cmd)
 
@@ -96,8 +108,12 @@ def scrape(
         )
     finally:
         instance.stop()
+        logger.info("Stopped Scrapybara instance")
 
     try:
+        logger.info(
+            f"Extracting JSON from last message: {messages[-1]['content'][-1]['text']}"
+        )
         return query.model_validate(extract_json(messages[-1]["content"][-1]["text"]))
     except ValidationError as e:
         # TODO potentially handle re-request
