@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 def launch(
     cmd: str,
     url: Optional[str] = None,
-    tools: Optional[ToolCollection] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
 ) -> list[dict]:  # type: ignore temporary
@@ -32,7 +31,6 @@ def launch(
     Args:
         cmd: The command or instruction for the agent to execute.
         url: An optional URL to open in the browser before launching the agent.
-        tools: An optional collection of tools for the agent to use. Defaults to a set of basic tools.
         instance_type: The type of instance to start, can be "small", "medium", or "large". Defaults to "small".
         verbose: If True, enables detailed logging of the agent's progress.
 
@@ -51,10 +49,9 @@ def launch(
             open_url(instance, url)
             logger.info(f"Opened URL in browser: {url}")
 
-        if tools is None:
-            tools = ToolCollection(
-                ComputerTool(instance), BashTool(instance), EditTool(instance)
-            )
+        tools = ToolCollection(
+            ComputerTool(instance), BashTool(instance), EditTool(instance)
+        )
         result = run_agent(launch_prompt(), cmd, instance, tools, verbose=verbose)
     finally:
         instance.stop()
@@ -66,7 +63,6 @@ def scrape(
     query: T,
     url: Optional[str] = None,
     cmd: Optional[str] = None,
-    tools: Optional[ToolCollection] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
 ) -> T:  # type: ignore temporary
@@ -79,7 +75,6 @@ def scrape(
         query: A Pydantic model instance defining the query structure and expected response fields.
         url: An optional URL to open in the browser before launching the agent.
         cmd: An optional command that overrides the query model's docstring.
-        tools: An optional collection of tools for the agent to use. Defaults to a set of basic tools.
         instance_type: The type of instance to start, can be "small", "medium", or "large". Defaults to "small".
         verbose: If True, enables detailed logging of the agent's progress.
 
@@ -99,10 +94,9 @@ def scrape(
 
         schema, cmd = scrape_query_to_prompt(query, cmd)
 
-        if tools is None:
-            tools = ToolCollection(
-                ComputerTool(instance), BashTool(instance), EditTool(instance)
-            )
+        tools = ToolCollection(
+            ComputerTool(instance), BashTool(instance), EditTool(instance)
+        )
         messages = run_agent(
             scrape_prompt(schema), cmd, instance, tools, verbose=verbose
         )
