@@ -23,8 +23,6 @@ class ToolCollection:
 
     def set_instance(self, instance: Instance):
         self.instance = instance
-        for tool in self.tools:
-            tool.set_instance(instance)
 
     def to_params(self) -> list:
         return [tool.to_params() for tool in self.tools]
@@ -34,7 +32,9 @@ class ToolCollection:
         if not tool:
             return None
         try:
-            return tool(**tool_input)
+            if not self.instance:
+                raise ValueError("Instance not set!")
+            return tool.call(tool_input, self.instance)
         except Exception as e:
             logger.error(f"Error running tool {name}: {e}")
             return None
@@ -66,15 +66,13 @@ class ComputerTool(BaseTool):
             "display_number": self.display_num,
         }
 
-    def __call__(self, **kwargs: Any) -> ToolResult:
+    def call(self, kwargs: dict, instance: Instance) -> ToolResult:
         action = kwargs.pop("action")
         coordinate = kwargs.pop("coordinate", None)
         text = kwargs.pop("text", None)
 
-        if not self.instance:
-            raise ValueError("Instance not set!")
         try:
-            result = self.instance.computer(
+            result = instance.computer(
                 action=action,
                 coordinate=tuple(coordinate) if coordinate else None,
                 text=text,
@@ -101,7 +99,7 @@ class EditTool(BaseTool):
             "type": self.api_type,
         }
 
-    def __call__(self, **kwargs: Any) -> ToolResult:
+    def call(self, kwargs: dict, instance: Instance) -> ToolResult:
         command = kwargs.pop("command")
         path = kwargs.pop("path")
         file_text = kwargs.pop("file_text", None)
@@ -110,10 +108,8 @@ class EditTool(BaseTool):
         new_str = kwargs.pop("new_str", None)
         insert_line = kwargs.pop("insert_line", None)
 
-        if not self.instance:
-            raise ValueError("Instance not set!")
         try:
-            result = self.instance.edit(
+            result = instance.edit(
                 command=command,
                 path=path,
                 file_text=file_text,
@@ -144,14 +140,12 @@ class BashTool(BaseTool):
             "type": self.api_type,
         }
 
-    def __call__(self, **kwargs: Any) -> ToolResult:
+    def call(self, kwargs: dict, instance: Instance) -> ToolResult:
         command = kwargs.pop("command")
         restart = kwargs.pop("restart", False)
 
-        if not self.instance:
-            raise ValueError("Instance not set!")
         try:
-            result = self.instance.bash(command=command, restart=restart)
+            result = instance.bash(command=command, restart=restart)
             return CLIResult(
                 output=result.get("output") if result else "",
                 error=result.get("error") if result else None,
