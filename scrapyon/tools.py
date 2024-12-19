@@ -51,7 +51,7 @@ class ComputerTool(BaseAnthropicTool):
     height: int = 768
     display_num: Optional[int] = 1
 
-    def __init__(self, instance: Instance):
+    def __init__(self, instance: Optional[Instance] = None):
         self.instance = instance
         super().__init__()
 
@@ -62,6 +62,9 @@ class ComputerTool(BaseAnthropicTool):
             "display_height_px": self.height,
             "display_number": self.display_num,
         }
+
+    def set_instance(self, instance: Instance):
+        self.instance = instance
 
     def to_params(self) -> BetaToolComputerUse20241022Param:
         return {
@@ -77,6 +80,8 @@ class ComputerTool(BaseAnthropicTool):
         coordinate = kwargs.pop("coordinate", None)
         text = kwargs.pop("text", None)
 
+        if not self.instance:
+            raise ValueError("Instance not set!")
         try:
             result = self.instance.computer(
                 action=action,
@@ -102,9 +107,12 @@ class EditTool(BaseAnthropicTool):
     api_type: Literal["text_editor_20241022"] = "text_editor_20241022"
     name: Literal["str_replace_editor"] = "str_replace_editor"
 
-    def __init__(self, instance: Instance):
+    def __init__(self, instance: Optional[Instance] = None):
         self.instance = instance
         super().__init__()
+
+    def set_instance(self, instance: Instance):
+        self.instance = instance
 
     def to_params(self) -> BetaToolTextEditor20241022Param:
         return {
@@ -120,6 +128,9 @@ class EditTool(BaseAnthropicTool):
         old_str = kwargs.pop("old_str", None)
         new_str = kwargs.pop("new_str", None)
         insert_line = kwargs.pop("insert_line", None)
+
+        if not self.instance:
+            raise ValueError("Instance not set!")
         try:
             result = self.instance.edit(
                 command=command,
@@ -149,9 +160,12 @@ class BashTool(BaseAnthropicTool):
     api_type: Literal["bash_20241022"] = "bash_20241022"
     name: Literal["bash"] = "bash"
 
-    def __init__(self, instance: Instance):
+    def __init__(self, instance: Optional[Instance] = None):
         self.instance = instance
         super().__init__()
+
+    def set_instance(self, instance: Instance):
+        self.instance = instance
 
     def to_params(self) -> BetaToolBash20241022Param:
         return {
@@ -162,6 +176,9 @@ class BashTool(BaseAnthropicTool):
     def __call__(self, **kwargs: Any) -> ToolResult:
         command = kwargs.pop("command")
         restart = kwargs.pop("restart", False)
+
+        if not self.instance:
+            raise ValueError("Instance not set!")
         try:
             result = self.instance.bash(command=command, restart=restart)
             return CLIResult(
