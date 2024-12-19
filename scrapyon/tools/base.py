@@ -6,6 +6,8 @@ from scrapybara.anthropic.base import BaseAnthropicTool
 class BaseTool(BaseAnthropicTool):
     """Base class for all Scrapyon tools that implements common functionality."""
 
+    instance: Optional[Instance] = None
+
     def __init__(self):
         self.instance: Optional[Instance] = None
         super().__init__()
