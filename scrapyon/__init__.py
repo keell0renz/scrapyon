@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 def launch(
     cmd: str,
     url: Optional[str] = None,
+    tools: Optional[ToolCollection] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
 ) -> list[dict]:  # type: ignore temporary
@@ -31,6 +32,7 @@ def launch(
     Args:
         cmd: The command or instruction for the agent to execute.
         url: An optional URL to open in the browser before launching the agent.
+        tools: An optional ToolCollection to use. If not provided, the default tools are used.
         instance_type: The type of instance to start, can be "small", "medium", or "large". Defaults to "small".
         verbose: If True, enables detailed logging of the agent's progress.
 
@@ -44,14 +46,20 @@ def launch(
     stream_url = instance.get_stream_url().stream_url
     logger.info(f"VNC stream URL: {stream_url}")
 
+    if tools:
+        tools.set_instance(instance)
+    else:
+        tools = ToolCollection(
+            ComputerTool(instance),
+            BashTool(instance),
+            EditTool(instance),
+        )
+
     try:
         if url:
             open_url(instance, url)
             logger.info(f"Opened URL in browser: {url}")
 
-        tools = ToolCollection(
-            ComputerTool(instance), BashTool(instance), EditTool(instance)
-        )
         result = run_agent(launch_prompt(), cmd, instance, tools, verbose=verbose)
     finally:
         instance.stop()
@@ -62,6 +70,7 @@ def launch(
 def scrape(
     query: T,
     url: Optional[str] = None,
+    tools: Optional[ToolCollection] = None,
     cmd: Optional[str] = None,
     instance_type: Optional[Literal["small", "medium", "large"]] = "small",
     verbose: bool = False,
@@ -74,6 +83,7 @@ def scrape(
     Args:
         query: A Pydantic model instance defining the query structure and expected response fields.
         url: An optional URL to open in the browser before launching the agent.
+        tools: An optional ToolCollection to use. If not provided, the default tools are used.
         cmd: An optional command that overrides the query model's docstring.
         instance_type: The type of instance to start, can be "small", "medium", or "large". Defaults to "small".
         verbose: If True, enables detailed logging of the agent's progress.
@@ -87,6 +97,15 @@ def scrape(
     stream_url = instance.get_stream_url().stream_url
     logger.info(f"VNC stream URL: {stream_url}")
 
+    if tools:
+        tools.set_instance(instance)
+    else:
+        tools = ToolCollection(
+            ComputerTool(instance),
+            BashTool(instance),
+            EditTool(instance),
+        )
+
     try:
         if url:
             open_url(instance, url)
@@ -94,9 +113,6 @@ def scrape(
 
         schema, cmd = scrape_query_to_prompt(query, cmd)
 
-        tools = ToolCollection(
-            ComputerTool(instance), BashTool(instance), EditTool(instance)
-        )
         messages = run_agent(
             scrape_prompt(schema), cmd, instance, tools, verbose=verbose
         )
