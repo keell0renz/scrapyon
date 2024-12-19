@@ -7,7 +7,7 @@ from anthropic.types.beta import (
 from scrapybara.client import Instance
 from scrapybara.anthropic.base import ToolResult, ToolError, CLIResult
 from scrapyon._logging import logger
-from .base import BaseTool
+from scrapybara.anthropic.base import BaseAnthropicTool
 
 
 class ComputerToolOptions(TypedDict):
@@ -40,7 +40,7 @@ class ToolCollection:
             return None
 
 
-class ComputerTool(BaseTool):
+class ComputerTool(BaseAnthropicTool):
     """A computer interaction tool that allows the agent to control mouse and keyboard."""
 
     api_type: Literal["computer_20241022"] = "computer_20241022"
@@ -48,6 +48,9 @@ class ComputerTool(BaseTool):
     width: int = 1024
     height: int = 768
     display_num: Optional[int] = 1
+
+    def __init__(self):
+        super().__init__()
 
     @property
     def options(self) -> ComputerToolOptions:
@@ -86,12 +89,18 @@ class ComputerTool(BaseTool):
         except Exception as e:
             raise ToolError(str(e)) from None
 
+    def __call__(self, **kwargs: Any) -> None:
+        pass
 
-class EditTool(BaseTool):
+
+class EditTool(BaseAnthropicTool):
     """A filesystem editor tool that allows the agent to view, create, and edit files."""
 
     api_type: Literal["text_editor_20241022"] = "text_editor_20241022"
     name: Literal["str_replace_editor"] = "str_replace_editor"
+
+    def __init__(self):
+        super().__init__()
 
     def to_params(self) -> BetaToolTextEditor20241022Param:
         return {
@@ -127,12 +136,18 @@ class EditTool(BaseTool):
         except Exception as e:
             raise ToolError(str(e)) from None
 
+    def __call__(self, **kwargs: Any) -> None:
+        pass
 
-class BashTool(BaseTool):
+
+class BashTool(BaseAnthropicTool):
     """A shell execution tool that allows the agent to run bash commands."""
 
     api_type: Literal["bash_20241022"] = "bash_20241022"
     name: Literal["bash"] = "bash"
+
+    def __init__(self):
+        super().__init__()
 
     def to_params(self) -> BetaToolBash20241022Param:
         return {
@@ -153,4 +168,7 @@ class BashTool(BaseTool):
                 system=result.get("system") if result else None,
             )
         except Exception as e:
-            raise ToolError(str(e)) from None 
+            raise ToolError(str(e)) from None
+
+    def __call__(self, **kwargs: Any) -> None:
+        pass
