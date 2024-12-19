@@ -52,7 +52,7 @@ def launch(
             BashTool(),
             EditTool(),
         )
-    
+
     tools.set_instance(instance)
 
     try:
@@ -103,7 +103,7 @@ def scrape(
             BashTool(),
             EditTool(),
         )
-    
+
     tools.set_instance(instance)
 
     try:
