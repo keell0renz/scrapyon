@@ -81,8 +81,8 @@ class CustomTool(BaseAnthropicTool):
     api_type: Literal["custom_type"] = "custom_type"
     name: Literal["custom_tool"] = "custom_tool"
 
-    def __init__(self, instance: Optional[Instance] = None):
-        self.instance = instance
+    def __init__(self):
+        self.instance = None
         super().__init__()
 
     def set_instance(self, instance: Instance):

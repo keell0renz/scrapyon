@@ -46,14 +46,14 @@ def launch(
     stream_url = instance.get_stream_url().stream_url
     logger.info(f"VNC stream URL: {stream_url}")
 
-    if tools:
-        tools.set_instance(instance)
-    else:
+    if tools is None:
         tools = ToolCollection(
-            ComputerTool(instance),
-            BashTool(instance),
-            EditTool(instance),
+            ComputerTool(),
+            BashTool(),
+            EditTool(),
         )
+    
+    tools.set_instance(instance)
 
     try:
         if url:
@@ -97,14 +97,14 @@ def scrape(
     stream_url = instance.get_stream_url().stream_url
     logger.info(f"VNC stream URL: {stream_url}")
 
-    if tools:
-        tools.set_instance(instance)
-    else:
+    if tools is None:
         tools = ToolCollection(
-            ComputerTool(instance),
-            BashTool(instance),
-            EditTool(instance),
+            ComputerTool(),
+            BashTool(),
+            EditTool(),
         )
+    
+    tools.set_instance(instance)
 
     try:
         if url:

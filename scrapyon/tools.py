@@ -21,11 +21,9 @@ class ComputerToolOptions(TypedDict):
 
 
 class ToolCollection:
-    def __init__(self, *tools, instance: Optional[Instance] = None):
+    def __init__(self, *tools):
         self.tools = tools
         self.tool_map = {tool.to_params()["name"]: tool for tool in tools}
-        if instance:
-            self.set_instance(instance)
 
     def set_instance(self, instance: Instance):
         self.instance = instance
@@ -58,8 +56,8 @@ class ComputerTool(BaseAnthropicTool):
     height: int = 768
     display_num: Optional[int] = 1
 
-    def __init__(self, instance: Optional[Instance] = None):
-        self.instance = instance
+    def __init__(self):
+        self.instance = None
         super().__init__()
 
     @property
@@ -114,8 +112,8 @@ class EditTool(BaseAnthropicTool):
     api_type: Literal["text_editor_20241022"] = "text_editor_20241022"
     name: Literal["str_replace_editor"] = "str_replace_editor"
 
-    def __init__(self, instance: Optional[Instance] = None):
-        self.instance = instance
+    def __init__(self):
+        self.instance = None
         super().__init__()
 
     def set_instance(self, instance: Instance):
@@ -167,8 +165,8 @@ class BashTool(BaseAnthropicTool):
     api_type: Literal["bash_20241022"] = "bash_20241022"
     name: Literal["bash"] = "bash"
 
-    def __init__(self, instance: Optional[Instance] = None):
-        self.instance = instance
+    def __init__(self):
+        self.instance = None
         super().__init__()
 
     def set_instance(self, instance: Instance):
