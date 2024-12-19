@@ -7,7 +7,7 @@ from anthropic.types.beta import (
 from scrapybara.client import Instance
 from scrapybara.anthropic.base import ToolResult, ToolError, CLIResult
 from scrapyon._logging import logger
-from scrapybara.anthropic.base import BaseAnthropicTool
+from .base import BaseTool
 
 
 class ComputerToolOptions(TypedDict):
@@ -40,7 +40,7 @@ class ToolCollection:
             return None
 
 
-class ComputerTool(BaseAnthropicTool):
+class ComputerTool(BaseTool):
     """A computer interaction tool that allows the agent to control mouse and keyboard."""
 
     api_type: Literal["computer_20241022"] = "computer_20241022"
@@ -89,11 +89,8 @@ class ComputerTool(BaseAnthropicTool):
         except Exception as e:
             raise ToolError(str(e)) from None
 
-    def __call__(self, **kwargs: Any) -> None:
-        pass
 
-
-class EditTool(BaseAnthropicTool):
+class EditTool(BaseTool):
     """A filesystem editor tool that allows the agent to view, create, and edit files."""
 
     api_type: Literal["text_editor_20241022"] = "text_editor_20241022"
@@ -136,11 +133,8 @@ class EditTool(BaseAnthropicTool):
         except Exception as e:
             raise ToolError(str(e)) from None
 
-    def __call__(self, **kwargs: Any) -> None:
-        pass
 
-
-class BashTool(BaseAnthropicTool):
+class BashTool(BaseTool):
     """A shell execution tool that allows the agent to run bash commands."""
 
     api_type: Literal["bash_20241022"] = "bash_20241022"
@@ -169,6 +163,3 @@ class BashTool(BaseAnthropicTool):
             )
         except Exception as e:
             raise ToolError(str(e)) from None
-
-    def __call__(self, **kwargs: Any) -> None:
-        pass

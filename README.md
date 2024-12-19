@@ -87,9 +87,7 @@ class CustomTool(BaseTool):
             "type": self.api_type,
         }
 
-    def __call__(self, **kwargs: Any) -> ToolResult:
-        if not self.instance:
-            raise ValueError("Instance not set!")
+    def call(self, kwargs: dict, instance: Instance) -> ToolResult:
         try:
             # Implement your custom logic here
             result = {"output": "Custom tool execution"}
