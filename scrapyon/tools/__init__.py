@@ -5,13 +5,9 @@ from anthropic.types.beta import (
     BetaToolBash20241022Param,
 )
 from scrapybara.client import Instance
-from scrapybara.anthropic.base import (
-    BaseAnthropicTool,
-    CLIResult,
-    ToolError,
-    ToolResult,
-)
+from scrapybara.anthropic.base import ToolResult, ToolError, CLIResult
 from scrapyon._logging import logger
+from .base import BaseTool
 
 
 class ComputerToolOptions(TypedDict):
@@ -44,21 +40,14 @@ class ToolCollection:
             return None
 
 
-class ComputerTool(BaseAnthropicTool):
-    """
-    A computer interaction tool that allows the agent to control mouse and keyboard.
-    The tool parameters are defined by Anthropic and are not editable.
-    """
+class ComputerTool(BaseTool):
+    """A computer interaction tool that allows the agent to control mouse and keyboard."""
 
     api_type: Literal["computer_20241022"] = "computer_20241022"
     name: Literal["computer"] = "computer"
     width: int = 1024
     height: int = 768
     display_num: Optional[int] = 1
-
-    def __init__(self):
-        self.instance = None
-        super().__init__()
 
     @property
     def options(self) -> ComputerToolOptions:
@@ -67,9 +56,6 @@ class ComputerTool(BaseAnthropicTool):
             "display_height_px": self.height,
             "display_number": self.display_num,
         }
-
-    def set_instance(self, instance: Instance):
-        self.instance = instance
 
     def to_params(self) -> BetaToolComputerUse20241022Param:
         return {
@@ -103,21 +89,11 @@ class ComputerTool(BaseAnthropicTool):
             raise ToolError(str(e)) from None
 
 
-class EditTool(BaseAnthropicTool):
-    """
-    A filesystem editor tool that allows the agent to view, create, and edit files.
-    The tool parameters are defined by Anthropic and are not editable.
-    """
+class EditTool(BaseTool):
+    """A filesystem editor tool that allows the agent to view, create, and edit files."""
 
     api_type: Literal["text_editor_20241022"] = "text_editor_20241022"
     name: Literal["str_replace_editor"] = "str_replace_editor"
-
-    def __init__(self):
-        self.instance = None
-        super().__init__()
-
-    def set_instance(self, instance: Instance):
-        self.instance = instance
 
     def to_params(self) -> BetaToolTextEditor20241022Param:
         return {
@@ -156,21 +132,11 @@ class EditTool(BaseAnthropicTool):
             raise ToolError(str(e)) from None
 
 
-class BashTool(BaseAnthropicTool):
-    """
-    A shell execution tool that allows the agent to run bash commands.
-    The tool parameters are defined by Anthropic and are not editable.
-    """
+class BashTool(BaseTool):
+    """A shell execution tool that allows the agent to run bash commands."""
 
     api_type: Literal["bash_20241022"] = "bash_20241022"
     name: Literal["bash"] = "bash"
-
-    def __init__(self):
-        self.instance = None
-        super().__init__()
-
-    def set_instance(self, instance: Instance):
-        self.instance = instance
 
     def to_params(self) -> BetaToolBash20241022Param:
         return {
@@ -193,4 +159,4 @@ class BashTool(BaseAnthropicTool):
                 system=result.get("system") if result else None,
             )
         except Exception as e:
-            raise ToolError(str(e)) from None
+            raise ToolError(str(e)) from None 

@@ -71,22 +71,15 @@ The `scrape()` function has some specific parameters:
 
 ## Custom Tools
 
-You can create and use custom tools with ScrapyOn by using prebuilt tools or by extending `BaseAnthropicTool`:
+You can create and use custom tools with ScrapyOn by extending `ScrapyonBaseTool`:
 
 ```python
-from scrapyon.tools import ToolCollection, BaseAnthropicTool, CLIResult, ToolError, Instance
-from typing import Literal, Optional
+from typing import Literal, Any
+from scrapyon.tools import ToolCollection, BaseTool, CLIResult, ToolError, ToolResult
 
-class CustomTool(BaseAnthropicTool):
+class CustomTool(BaseTool):
     api_type: Literal["custom_type"] = "custom_type"
     name: Literal["custom_tool"] = "custom_tool"
-
-    def __init__(self):
-        self.instance = None
-        super().__init__()
-
-    def set_instance(self, instance: Instance):
-        self.instance = instance
 
     def to_params(self) -> dict:
         return {
@@ -94,15 +87,17 @@ class CustomTool(BaseAnthropicTool):
             "type": self.api_type,
         }
 
-    def __call__(self, **kwargs) -> CLIResult:
+    def __call__(self, **kwargs: Any) -> ToolResult:
+        if not self.instance:
+            raise ValueError("Instance not set!")
         try:
             # Implement your custom logic here
             result = {"output": "Custom tool execution"}
             return CLIResult(
-                output=result.get("output"),
-                error=None,
-                base64_image=None,
-                system=None
+                output=result.get("output") if result else "",
+                error=result.get("error") if result else None,
+                base64_image=result.get("base64_image") if result else None,
+                system=result.get("system") if result else None
             )
         except Exception as e:
             raise ToolError(str(e)) from None
@@ -121,7 +116,6 @@ Custom tools must implement:
 
 - `api_type`: Literal type identifier for the tool
 - `name`: Literal name identifier for the tool
-- `set_instance()`: Method to set the Scrapybara instance
 - `to_params()`: Method that returns the tool's parameters
 - `__call__()`: Method that implements the tool's functionality, returning a `CLIResult`
 
