@@ -21,9 +21,16 @@ class ComputerToolOptions(TypedDict):
 
 
 class ToolCollection:
-    def __init__(self, *tools):
+    def __init__(self, *tools, instance: Optional[Instance] = None):
         self.tools = tools
         self.tool_map = {tool.to_params()["name"]: tool for tool in tools}
+        if instance:
+            self.set_instance(instance)
+
+    def set_instance(self, instance: Instance):
+        self.instance = instance
+        for tool in self.tools:
+            tool.set_instance(instance)
 
     def to_params(self) -> list:
         return [tool.to_params() for tool in self.tools]
